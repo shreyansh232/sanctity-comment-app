@@ -19,9 +19,9 @@ model User {
   username  String    @unique
   password  String
   createdAt DateTime  @default(now()) @map("created_at")
-  comments  Comment[] 
+  comments  Comment[]
 
-  @@map("users") 
+  @@map("users")
 }
 
 model Comment {

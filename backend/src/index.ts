@@ -3,11 +3,13 @@ import "dotenv/config";
 import authRoutes from "./routes/auth.routes";
 import commentRoutes from "./routes/comment.routes";
 import db from "./config/db";
+import cors from "cors";
 
 const app = express();
 const port = process.env.PORT || 8088;
 
 app.use(express.json());
+app.use(cors());
 
 db.connect()
   .then((client) => {
