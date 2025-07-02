@@ -20,6 +20,10 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.2",
+    "jsonwebtoken": "^9.0.2",
     "prisma": "^6.11.0"
   }
 }

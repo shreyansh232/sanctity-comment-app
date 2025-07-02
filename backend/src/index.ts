@@ -1,13 +1,23 @@
 import express from "express";
+import "dotenv/config";
+import authRoutes from "./routes/auth.routes";
+import db from "./config/db";
 
 const app = express();
 const port = process.env.PORT || 8088;
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Backend is running");
-});
+db.connect()
+  .then((client) => {
+    console.log("Connected to PostgreSQL database!");
+    client.release(); // Release the client back to the pool
+  })
+  .catch((err) => {
+    console.error("Error connecting to PostgreSQL database:", err.message);
+    process.exit(1); // Exit if DB connection fails
+  });
+app.use("/api/auth", authRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
