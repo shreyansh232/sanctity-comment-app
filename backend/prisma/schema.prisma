@@ -13,11 +13,27 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
   id        Int       @id @default(autoincrement())
   username  String    @unique
   password  String
   createdAt DateTime  @default(now()) @map("created_at")
+  comments  Comment[] 
 
-  @@map("users") // Map model name to table name
+  @@map("users") 
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  createdAt DateTime  @default(now()) @map("created_at")
+  editedAt  DateTime? @map("edited_at")
+  parentId  Int?      @map("parent_id")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("comments")
 }

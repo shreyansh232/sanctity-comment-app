@@ -1,12 +1,14 @@
 import { Request, Response, RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import "dotenv/config";
 import db from "../config/db";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET ||
-  "6c2e1f312d365ac38f34292e96e0db131d5f359539a50368ca051b6418a0afb872a2db048bf5de5c81a9f85526a7ab332227e576223727bc3dc78d3f2500fd267798";
+const JWT_SECRET = process.env.JWT_SECRET;
 
+if (!JWT_SECRET) {
+  throw Error("JWT secret invalid");
+}
 export const signup: RequestHandler = async (req: Request, res: Response) => {
   const { username, password } = req.body;
   if (!username || !password) {

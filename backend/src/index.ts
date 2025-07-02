@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import authRoutes from "./routes/auth.routes";
+import commentRoutes from "./routes/comment.routes";
 import db from "./config/db";
 
 const app = express();
@@ -18,6 +19,8 @@ db.connect()
     process.exit(1); // Exit if DB connection fails
   });
 app.use("/api/auth", authRoutes);
+app.use("/api/comments", commentRoutes);
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
