@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -25,9 +26,11 @@ export default function Home() {
           A platform for sharing your thoughts and opinions with the world
         </p>
         <div className="flex justify-center mt-8">
+          <Link href={"/comment"}>
           <button className="bg-[#469BF7] text-white px-10 py-4 rounded-full hover:bg-[#6ca9ea] hover:cursor-pointer">
             Get Started
           </button>
+          </Link>
         </div>
       </div>
     </div>

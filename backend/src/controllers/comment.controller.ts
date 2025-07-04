@@ -33,7 +33,7 @@ export const createComment = async (
 export const getComments = async (req: Request, res: Response) => {
   try {
     const result = await db.query(
-      "SELECT * FROM comments WHERE is_deleted = FALSE ORDER BY created_at DESC"
+      'SELECT c.*, u.username FROM comments c JOIN users u ON c."userId" = u.id ORDER BY c.created_at DESC'
     );
     res.json(result.rows as Comment[]);
   } catch (error) {
@@ -57,7 +57,6 @@ export const getCommentById = async (req: Request, res: Response) => {
     res.status(500).send("Error fetching comment");
   }
 };
-
 
 //Update a comment
 export const updateComment = async (
@@ -158,12 +157,7 @@ export const restoreComment = async (
   try {
     const result = await db.query("SELECT * FROM comments WHERE id = $1", [id]);
     const comment = result.rows[0] as Comment;
-    console.log(
-      "Comment object in restoreComment:",
-      comment,
-      comment.is_deleted,
-      comment.deleted_at
-    );
+
     if (!comment) {
       res.status(404).json({ message: "Comment not found" });
       return;
@@ -183,18 +177,37 @@ export const restoreComment = async (
       });
       return;
     }
-    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-    if (comment.deleted_at < fifteenMinutesAgo) {
+    const timeCheckQuery = `
+      SELECT 
+        deleted_at,
+        NOW() as current_time,
+        (NOW() - INTERVAL '5.5 hours') as adjusted_time,
+        EXTRACT(EPOCH FROM ((NOW() - INTERVAL '5.5 hours') - deleted_at)) as seconds_since_deletion,
+        CASE 
+          WHEN EXTRACT(EPOCH FROM ((NOW() - INTERVAL '5.5 hours') - deleted_at)) <= 900 THEN true 
+          ELSE false 
+        END as can_restore
+      FROM comments 
+      WHERE id = $1
+    `;
+
+    const timeCheckResult = await db.query(timeCheckQuery, [id]);
+    const timeData = timeCheckResult.rows[0];
+
+    if (!timeData.can_restore) {
+      const minutesPassed = Math.floor(timeData.seconds_since_deletion / 60);
       res.status(403).json({
-        message: "Comments can only be restored within 15 minutes of deletion",
+        message: `Comments can only be restored within 15 minutes of deletion. ${minutesPassed} minutes have passed.`,
       });
       return;
     }
 
+    // Restore the comment
     const updatedResult = await db.query(
       "UPDATE comments SET is_deleted = FALSE, deleted_at = NULL WHERE id = $1 RETURNING *",
       [id]
     );
+
     res.json(updatedResult.rows[0] as Comment);
   } catch (error) {
     console.error("Error restoring comment:", error);
