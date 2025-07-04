@@ -11,10 +11,12 @@ interface authData{
 
 export default function SignUp() {
   const router = useRouter();
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE
+
 
   const handleSignUp = async (data: authData) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/auth/signup`, {
+      const response = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
