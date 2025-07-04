@@ -14,7 +14,7 @@ export default function SignUp() {
 
   const handleSignUp = async (data: authData) => {
     try {
-      const response = await fetch("http://localhost:8088/api/auth/signup", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
