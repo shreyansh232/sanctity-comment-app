@@ -116,7 +116,7 @@ const CommentSystem = () => {
         router.push("/signin"); // Redirect if no token found (should be covered by isLoggedIn too)
       }
     }
-  }, [router, fetchComments, fetchNotifications]);
+  }, []);
 
   const createComment = async (
     content: string,
