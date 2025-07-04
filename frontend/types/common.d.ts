@@ -29,3 +29,12 @@ export interface Notification {
   isRead: boolean;
   createdAt: Date;
 }
+
+export interface NotificationFromApi {
+  id: number;
+  message: string;
+  user_id: number;
+  comment_id: number;
+  is_read: boolean;
+  created_at: string; 
+}

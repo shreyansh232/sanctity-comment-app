@@ -7,7 +7,12 @@ import { useRouter } from "next/navigation";
 import CommentHeader from "@/components/entity_specific/comment/CommentHeader";
 import NewCommentForm from "@/components/entity_specific/comment/NewCommentForm";
 import CommentList from "@/components/entity_specific/comment/CommentList";
-import { User, Comment, Notification } from "@/types/common";
+import {
+  User,
+  Comment,
+  Notification,
+  NotificationFromApi,
+} from "@/types/common";
 
 const CommentSystem = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -28,36 +33,9 @@ const CommentSystem = () => {
   const router = useRouter();
 
   // API Base URL
-  const API_BASE = "http://localhost:8088/api/comments";
-  const NOTIFICATION_API_BASE = "http://localhost:8088/api/notifications"; // New notification API base
-
-  // Check login status and redirect
-  useEffect(() => {
-    if (!isLoggedIn()) {
-      router.push("/signin");
-    } else {
-      const token = localStorage.getItem("token"); // Assuming your token is stored as 'token'
-      if (token) {
-        const decodedUser = decodeJwtToken(token);
-        if (decodedUser) {
-          setUser({
-            id: decodedUser.id,
-            username: decodedUser.username,
-            avatar: null,
-          });
-          console.log("Logged-in user ID:", decodedUser.id);
-          fetchComments();
-          fetchNotifications(); // Fetch notifications on login
-        } else {
-          // Handle case where token is invalid or decoding fails
-          console.error("Failed to decode user information from token.");
-          router.push("/signin"); // Redirect if user data can't be obtained
-        }
-      } else {
-        router.push("/signin"); // Redirect if no token found (should be covered by isLoggedIn too)
-      }
-    }
-  }, []);
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE + "/comments";
+  const NOTIFICATION_API_BASE =
+    process.env.NEXT_PUBLIC_API_BASE + "/notifications"; // New notification API base
 
   const logout = () => {
     setUser(null);
@@ -99,7 +77,7 @@ const CommentSystem = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        const parsedNotifications = data.map((n: any) => ({
+        const parsedNotifications = data.map((n: NotificationFromApi) => ({
           ...n,
           isRead: n.is_read,
           createdAt: new Date(n.created_at),
@@ -112,6 +90,33 @@ const CommentSystem = () => {
       console.error("Error fetching notifications:", err);
     }
   };
+  // Check login status and redirect
+  useEffect(() => {
+    if (!isLoggedIn()) {
+      router.push("/signin");
+    } else {
+      const token = localStorage.getItem("token"); // Assuming your token is stored as 'token'
+      if (token) {
+        const decodedUser = decodeJwtToken(token);
+        if (decodedUser) {
+          setUser({
+            id: decodedUser.id,
+            username: decodedUser.username,
+            avatar: null,
+          });
+          console.log("Logged-in user ID:", decodedUser.id);
+          fetchComments();
+          fetchNotifications(); // Fetch notifications on login
+        } else {
+          // Handle case where token is invalid or decoding fails
+          console.error("Failed to decode user information from token.");
+          router.push("/signin"); // Redirect if user data can't be obtained
+        }
+      } else {
+        router.push("/signin"); // Redirect if no token found (should be covered by isLoggedIn too)
+      }
+    }
+  }, [router, fetchComments, fetchNotifications]);
 
   const createComment = async (
     content: string,
@@ -144,6 +149,7 @@ const CommentSystem = () => {
       return false;
     } catch (err) {
       setError("Failed to create comment");
+      console.error("Error:", err);
       return false;
     }
   };
@@ -172,6 +178,7 @@ const CommentSystem = () => {
       return false;
     } catch (err) {
       setError("Failed to update comment");
+      console.error("Error:", err);
       return false;
     }
   };
@@ -198,6 +205,7 @@ const CommentSystem = () => {
       return false;
     } catch (err) {
       setError("Failed to delete comment");
+      console.error("Error:", err);
       return false;
     }
   };
@@ -224,6 +232,7 @@ const CommentSystem = () => {
       return false;
     } catch (err) {
       setError("Failed to restore comment");
+      console.error("Error:", err);
       return false;
     }
   };
@@ -266,6 +275,7 @@ const CommentSystem = () => {
 
   const handleAddReply = async (parentId: number, content: string) => {
     if (!content.trim()) return false;
+    console.log(newReply);
 
     const success = await createComment(content, parentId);
     if (success) {

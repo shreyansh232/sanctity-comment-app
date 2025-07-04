@@ -37,7 +37,6 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./frontend:/app
       - /app/node_modules # Anonymous volume
 
 volumes:

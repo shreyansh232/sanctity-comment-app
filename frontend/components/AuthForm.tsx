@@ -4,9 +4,13 @@ import { useState } from "react";
 import { z } from "zod";
 import Link from "next/link";
 
+interface authData {
+  username: string;
+  password: string;
+}
 interface AuthFormProps {
   type: "signin" | "signup";
-  action: (data: any) => void;
+  action: (data: authData) => void;
 }
 
 const signUpSchema = z.object({
@@ -60,7 +64,7 @@ export default function AuthForm({ type, action }: AuthFormProps) {
           backgroundSize: "40px 40px",
         }}
       />
-      
+
       <div className="w-full max-w-md px-8 py-12 z-10">
         <div className="mb-12">
           <h1 className="text-5xl font-bold text-gray-900 mb-2">
@@ -81,11 +85,15 @@ export default function AuthForm({ type, action }: AuthFormProps) {
                 type={type === "signin" ? "email" : "text"}
                 id="username"
                 className={`w-full px-6 py-4 text-lg border-2 rounded-2xl bg-white focus:outline-none transition-colors ${
-                  errors.username 
-                    ? "border-red-500 focus:border-red-500" 
+                  errors.username
+                    ? "border-red-500 focus:border-red-500"
                     : "border-gray-200 focus:border-blue-500"
                 }`}
-                placeholder={type === "signin" ? "johndoe@example.com" : "Enter your username"}
+                placeholder={
+                  type === "signin"
+                    ? "johndoe@example.com"
+                    : "Enter your username"
+                }
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -113,8 +121,8 @@ export default function AuthForm({ type, action }: AuthFormProps) {
                 type={showPassword ? "text" : "password"}
                 id="password"
                 className={`w-full px-6 py-4 text-lg border-2 rounded-2xl bg-white focus:outline-none pr-12 transition-colors ${
-                  errors.password 
-                    ? "border-red-500 focus:border-red-500" 
+                  errors.password
+                    ? "border-red-500 focus:border-red-500"
                     : "border-gray-200 focus:border-blue-500"
                 }`}
                 placeholder="Enter Your Password"
@@ -143,19 +151,24 @@ export default function AuthForm({ type, action }: AuthFormProps) {
             {type === "signin" ? "Log In" : "Sign Up"}
           </button>
 
-
           <div className="text-center pt-4">
             {type === "signin" ? (
               <p className="text-gray-600">
-                Don't have an account?{" "}
-                <Link href="/signup" className="text-blue-500 hover:text-blue-600 hover:underline font-medium">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/signup"
+                  className="text-blue-500 hover:text-blue-600 hover:underline font-medium"
+                >
                   Sign Up
                 </Link>
               </p>
             ) : (
               <p className="text-gray-600">
                 Already have an account?{" "}
-                <Link href="/signin" className="text-blue-500 hover:text-blue-600 hover:underline font-medium">
+                <Link
+                  href="/signin"
+                  className="text-blue-500 hover:text-blue-600 hover:underline font-medium"
+                >
                   Sign In
                 </Link>
               </p>

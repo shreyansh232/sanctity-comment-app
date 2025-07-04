@@ -54,7 +54,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
   formatTimeAgo,
 }) => {
   const [editContent, setEditContent] = useState(comment.content);
-  const [isLiked, setIsLiked] = useState(false);
   const isExpanded = expandedComments.has(comment.id);
   const [newReplyContent, setNewReplyContent] = useState("");
 

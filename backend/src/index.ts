@@ -1,5 +1,6 @@
 import express from "express";
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config();
 import authRoutes from "./routes/auth.routes";
 import commentRoutes from "./routes/comment.routes";
 import notificationRoutes from "./routes/notification.routes";

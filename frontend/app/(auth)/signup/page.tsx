@@ -4,10 +4,15 @@ import AuthForm from "@/components/AuthForm";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
+interface authData{
+  username: string;
+  password: string;
+}
+
 export default function SignUp() {
   const router = useRouter();
 
-  const handleSignUp = async (data: any) => {
+  const handleSignUp = async (data: authData) => {
     try {
       const response = await fetch("http://localhost:8088/api/auth/signup", {
         method: "POST",
