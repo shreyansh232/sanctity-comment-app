@@ -29,6 +29,7 @@ const CommentSystem = () => {
 
   // API Base URL
   const API_BASE = "http://localhost:8088/api/comments";
+  const NOTIFICATION_API_BASE = "http://localhost:8088/api/notifications"; // New notification API base
 
   // Check login status and redirect
   useEffect(() => {
@@ -46,6 +47,7 @@ const CommentSystem = () => {
           });
           console.log("Logged-in user ID:", decodedUser.id);
           fetchComments();
+          fetchNotifications(); // Fetch notifications on login
         } else {
           // Handle case where token is invalid or decoding fails
           console.error("Failed to decode user information from token.");
@@ -83,6 +85,34 @@ const CommentSystem = () => {
     }
   };
 
+  const fetchNotifications = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signin");
+      return;
+    }
+    try {
+      const response = await fetch(NOTIFICATION_API_BASE, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const parsedNotifications = data.map((n: any) => ({
+          ...n,
+          isRead: n.is_read,
+          createdAt: new Date(n.created_at),
+        }));
+        setNotifications(parsedNotifications);
+      } else {
+        console.error("Failed to fetch notifications:", response.statusText);
+      }
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    }
+  };
+
   const createComment = async (
     content: string,
     parentId: number | null = null
@@ -107,17 +137,7 @@ const CommentSystem = () => {
         const data = await response.json();
         if (data.success) {
           await fetchComments();
-          if (parentId) {
-            // Add notification for reply
-            const notification = {
-              id: Date.now(),
-              message: `${user?.username} replied to your comment`,
-              timestamp: new Date(),
-              isRead: false,
-              commentId: parentId,
-            };
-            setNotifications((prev) => [notification, ...prev]);
-          }
+          await fetchNotifications(); // Refresh notifications after creating a comment (in case of reply)
           return true;
         }
       }
@@ -204,6 +224,32 @@ const CommentSystem = () => {
       return false;
     } catch (err) {
       setError("Failed to restore comment");
+      return false;
+    }
+  };
+
+  const markNotificationAsRead = async (id: number) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signin");
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${NOTIFICATION_API_BASE}/${id}/read`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        await fetchNotifications(); // Refresh notifications after marking as read
+        return true;
+      }
+      console.error("Failed to mark notification as read");
+      return false;
+    } catch (err) {
+      console.error("Error marking notification as read:", err);
       return false;
     }
   };
@@ -415,6 +461,7 @@ const CommentSystem = () => {
         showNotifications={showNotifications}
         setShowNotifications={setShowNotifications}
         logout={logout}
+        markNotificationAsRead={markNotificationAsRead}
       />
 
       {/* Main Content */}

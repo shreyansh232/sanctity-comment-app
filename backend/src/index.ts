@@ -2,6 +2,7 @@ import express from "express";
 import "dotenv/config";
 import authRoutes from "./routes/auth.routes";
 import commentRoutes from "./routes/comment.routes";
+import notificationRoutes from "./routes/notification.routes";
 import db from "./config/db";
 import cors from "cors";
 
@@ -22,7 +23,7 @@ db.connect()
   });
 app.use("/api/auth", authRoutes);
 app.use("/api/comments", commentRoutes);
-
+app.use("/api/notifications", notificationRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

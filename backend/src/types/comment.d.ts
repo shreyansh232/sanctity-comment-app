@@ -7,4 +7,6 @@ export interface Comment {
   is_deleted: boolean;
   userId: number;
   deleted_at?: Date;
+  username?: string;
+  replies?: Comment[];
 }

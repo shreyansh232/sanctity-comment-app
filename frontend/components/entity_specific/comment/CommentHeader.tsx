@@ -10,6 +10,7 @@ interface CommentHeaderProps {
   showNotifications: boolean;
   setShowNotifications: (show: boolean) => void;
   logout: () => void;
+  markNotificationAsRead: (id: number) => Promise<boolean>;
 }
 
 const CommentHeader: React.FC<CommentHeaderProps> = ({
@@ -18,6 +19,7 @@ const CommentHeader: React.FC<CommentHeaderProps> = ({
   showNotifications,
   setShowNotifications,
   logout,
+  markNotificationAsRead,
 }) => {
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100/50 sticky top-0 z-50">
@@ -39,7 +41,7 @@ const CommentHeader: React.FC<CommentHeaderProps> = ({
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors duration-200"
+                className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors duration-200 hover:cursor-pointer"
               >
                 <Bell className="w-5 h-5" />
                 {notifications.filter((n) => !n.isRead).length > 0 && (
@@ -68,12 +70,17 @@ const CommentHeader: React.FC<CommentHeaderProps> = ({
                           className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors duration-200 ${
                             !notification.isRead ? "bg-blue-50" : ""
                           }`}
+                          onClick={() => {
+                            if (!notification.isRead) {
+                              markNotificationAsRead(notification.id);
+                            }
+                          }}
                         >
                           <p className="text-sm text-gray-800">
                             {notification.message}
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
-                            {notification.timestamp.toLocaleString()}
+                            {notification.createdAt.toLocaleString()}
                           </p>
                         </div>
                       ))

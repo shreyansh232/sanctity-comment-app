@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 import db from "../config/db";
 import { Comment } from "../types/comment";
+import { Notification } from "../types/notification";
 
 interface AuthenticatedRequest extends Request {
   userId?: number;
+  username?: string;
 }
 
 //Create a comment
@@ -22,7 +24,27 @@ export const createComment = async (
     const resultQuery =
       'INSERT INTO comments (content, parent_id, "userId") VALUES ($1, $2, $3) RETURNING *';
     const result = await db.query(resultQuery, [content, parentId, userId]);
-    res.status(201).json({ success: true, data: result.rows[0] as Comment });
+    const newComment = result.rows[0] as Comment;
+
+    if (parentId) {
+      const parentCommentQuery = 'SELECT "userId" FROM comments WHERE id = $1';
+      const parentCommentResult = await db.query(parentCommentQuery, [
+        parentId,
+      ]);
+      const parentCommentOwnerId = parentCommentResult.rows[0]?.userId;
+
+      if (parentCommentOwnerId && parentCommentOwnerId !== userId) {
+        const notificationMessage = `Your comment received a reply from ${req.username || "a user"}.`;
+        const createNotificationQuery =
+          "INSERT INTO notifications (message, user_id, comment_id) VALUES ($1, $2, $3) RETURNING *";
+        const notificationResult = await db.query(createNotificationQuery, [
+          notificationMessage,
+          parentCommentOwnerId,
+          newComment.id,
+        ]);
+      }
+    }
+    res.status(201).json({ success: true, data: newComment });
   } catch (error) {
     console.error("Error inserting comment", error);
     res.status(500).send("Server error");
@@ -212,5 +234,63 @@ export const restoreComment = async (
   } catch (error) {
     console.error("Error restoring comment:", error);
     res.status(500).send("Error restoring comment");
+  }
+};
+
+//Fetch Notifications
+export const getNotifications = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const userId = req.userId;
+
+  if (!userId) {
+    res.status(401).json({ message: "User not authenticated" });
+    return;
+  }
+
+  try {
+    const notificationsQuery =
+      "SELECT n.*, c.content as comment_content FROM notifications n JOIN comments c ON n.comment_id = c.id WHERE n.user_id = $1 ORDER BY n.created_at DESC";
+    const result = await db.query(notificationsQuery, [userId]);
+    console.log("[getNotifications] Fetched notifications:", result.rows);
+    res.status(200).json(result.rows as Notification[]);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).send("Server error");
+  }
+};
+
+//Mark Notifications
+export const markNotificationAsRead = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const { id } = req.params;
+  const userId = req.userId;
+
+  if (!userId) {
+    res.status(401).json({ message: "User not authenticated" });
+    return;
+  }
+
+  try {
+    const updateQuery =
+      "UPDATE notifications SET is_read = TRUE WHERE id = $1 AND user_id = $2 RETURNING *";
+    const result = await db.query(updateQuery, [id, userId]);
+
+    if (result.rows.length === 0) {
+      res
+        .status(404)
+        .json({ message: "Notification not found or not authorized" });
+      return;
+    }
+
+    res
+      .status(200)
+      .json({ success: true, data: result.rows[0] as Notification });
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+    res.status(500).send("Server error");
   }
 };

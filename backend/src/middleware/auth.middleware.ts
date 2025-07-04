@@ -4,6 +4,7 @@ import "dotenv/config";
 
 interface AuthenticatedRequest extends Request {
   userId?: number;
+  username?: string;
 }
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -31,6 +32,7 @@ export const authenticateToken = (
       return;
     }
     req.userId = user.id;
+    req.username = user.username;
     next();
   });
 };
