@@ -11,7 +11,7 @@ interface authData{
 
 export default function SignIn() {
   const router = useRouter();
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://sanctity-comment-appbackend-production.up.railway.app/api'
   const handleSignIn = async (data: authData) => {
     try {
       const response = await fetch(`${API_BASE}/auth/login`, {

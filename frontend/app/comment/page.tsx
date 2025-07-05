@@ -33,9 +33,9 @@ const CommentSystem = () => {
   const router = useRouter();
 
   // API Base URL
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE + "/comments";
+  const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || 'https://sanctity-comment-appbackend-production.up.railway.app/api') + "/comments";
   const NOTIFICATION_API_BASE =
-    process.env.NEXT_PUBLIC_API_BASE + "/notifications"; // New notification API base
+    (process.env.NEXT_PUBLIC_API_BASE || 'https://sanctity-comment-appbackend-production.up.railway.app/api') + "/notifications"; // New notification API base
 
   const logout = () => {
     setUser(null);
