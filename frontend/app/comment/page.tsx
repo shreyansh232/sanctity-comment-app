@@ -32,10 +32,15 @@ const CommentSystem = () => {
 
   const router = useRouter();
 
-  // API Base URL
-  const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || 'https://sanctity-comment-appbackend-production.up.railway.app/api') + "/comments";
-  const NOTIFICATION_API_BASE =
-    (process.env.NEXT_PUBLIC_API_BASE || 'https://sanctity-comment-appbackend-production.up.railway.app/api') + "/notifications"; // New notification API base
+  // // API Base URL
+  // const API_BASE =
+  //   (process.env.NEXT_PUBLIC_API_BASE ||
+  //     "https://sanctity-comment-appbackend-production.up.railway.app/api") +
+  //   "/comments";
+  // const NOTIFICATION_API_BASE =
+  //   (process.env.NEXT_PUBLIC_API_BASE ||
+  //     "https://sanctity-comment-appbackend-production.up.railway.app/api") +
+  //   "/notifications"; // New notification API base
 
   const logout = () => {
     setUser(null);
@@ -50,7 +55,9 @@ const CommentSystem = () => {
   const fetchComments = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/comments`);
+      const response = await fetch(
+        `https://sanctity-comment-appbackend-production.up.railway.app/api/comments/comments`
+      );
       if (response.ok) {
         const data = await response.json();
         setComments(data);
@@ -70,7 +77,7 @@ const CommentSystem = () => {
       return;
     }
     try {
-      const response = await fetch(NOTIFICATION_API_BASE, {
+      const response = await fetch('https://sanctity-comment-appbackend-production.up.railway.app/api/notifications/', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -129,14 +136,17 @@ const CommentSystem = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/createComment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ content, parentId }),
-      });
+      const response = await fetch(
+        `https://sanctity-comment-appbackend-production.up.railway.app/api/comments/createComment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ content, parentId }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -162,14 +172,17 @@ const CommentSystem = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/updateComment/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ content }),
-      });
+      const response = await fetch(
+        `https://sanctity-comment-appbackend-production.up.railway.app/api/comments/updateComment/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ content }),
+        }
+      );
 
       if (response.ok) {
         await fetchComments();
@@ -191,12 +204,15 @@ const CommentSystem = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/deleteComment/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://sanctity-comment-appbackend-production.up.railway.app/api/comments/deleteComment/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         await fetchComments();
@@ -218,12 +234,15 @@ const CommentSystem = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/restoreComment/${id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://sanctity-comment-appbackend-production.up.railway.app/api/comments/restoreComment/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         await fetchComments();
@@ -245,7 +264,7 @@ const CommentSystem = () => {
     }
 
     try {
-      const response = await fetch(`${NOTIFICATION_API_BASE}/${id}/read`, {
+      const response = await fetch(`https://sanctity-comment-appbackend-production.up.railway.app/api/notifications/${id}/read`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
